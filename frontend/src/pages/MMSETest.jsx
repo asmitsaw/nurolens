@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, Users, Target, BarChart2, Info,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { mmseQuestions, calculateScore, interpretMMSE } from '../data/questions';
+import { getMMSEQuestions, calculateScore, interpretMMSE } from '../data/questions';
 import { testService } from '../services/api';
 import QuestionCard from '../components/QuestionCard';
 
@@ -101,6 +101,7 @@ const DemographicInsight = ({ adj }) => {
 // ─── MMSETest Component ───────────────────────────────────────────────────────
 const MMSETest = () => {
   const navigate = useNavigate();
+  const [questions]                   = useState(() => getMMSEQuestions());
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers]         = useState({});
   const [isFinished, setIsFinished]   = useState(false);
@@ -110,10 +111,10 @@ const MMSETest = () => {
   const [submitError, setSubmitError] = useState('');
 
   const handleAnswer = (answer) => {
-    const updatedAnswers = { ...answers, [mmseQuestions[currentStep].id]: answer };
+    const updatedAnswers = { ...answers, [questions[currentStep].id]: answer };
     setAnswers(updatedAnswers);
     setTimeout(() => {
-      if (currentStep < mmseQuestions.length - 1) {
+      if (currentStep < questions.length - 1) {
         setCurrentStep(currentStep + 1);
       } else {
         finishTest(updatedAnswers);
@@ -125,13 +126,13 @@ const MMSETest = () => {
     setIsFinished(true);
     setSubmitting(true);
     const duration_secs  = Math.round((Date.now() - startTime) / 1000);
-    const safeQuestions  = mmseQuestions.map(({ id, section, correctAnswer, score }) => ({ id, section, correctAnswer, score }));
+    const safeQuestions  = questions.map(({ id, section, correctAnswer, score }) => ({ id, section, correctAnswer, score }));
 
     try {
       const { data } = await testService.submitMMSE({ answers: finalAnswers, duration_secs, questions: safeQuestions });
       setResult(data.data);
     } catch (err) {
-      const localScore = calculateScore(finalAnswers, mmseQuestions);
+      const localScore = calculateScore(finalAnswers, questions);
       setResult({ score: localScore, max_score: 30, risk_level: interpretMMSE(localScore).level });
       setSubmitError('Result saved locally (backend unavailable).');
     } finally {
@@ -139,8 +140,8 @@ const MMSETest = () => {
     }
   };
 
-  const currentQuestion = mmseQuestions[currentStep];
-  const progress        = ((currentStep + 1) / mmseQuestions.length) * 100;
+  const currentQuestion = questions[currentStep];
+  const progress        = ((currentStep + 1) / questions.length) * 100;
   const interpretation  = result ? interpretMMSE(result.score) : null;
 
   if (isFinished) {
@@ -232,20 +233,20 @@ const MMSETest = () => {
       <div className="player-progress-v2">
         <div className="progress-top">
           <span>{Math.round(progress)}% Complete</span>
-          <span>Question {currentStep + 1}/{mmseQuestions.length}</span>
+          <span>Question {currentStep + 1}/{questions.length}</span>
         </div>
         <div className="progress-track-v2">
           <div className="progress-bar-v2" style={{ width: `${progress}%` }}></div>
         </div>
       </div>
       <div className="player-body-v2">
-        <QuestionCard {...currentQuestion} onAnswer={handleAnswer} selectedAnswer={answers[currentQuestion.id]} accentColor="#4A90E2" />
+        <QuestionCard key={currentQuestion.id} {...currentQuestion} onAnswer={handleAnswer} selectedAnswer={answers[currentQuestion.id]} accentColor="#4A90E2" />
         <div className="player-nav-v2">
           <button className="btn-text-v2" disabled={currentStep === 0} onClick={() => setCurrentStep(currentStep - 1)}>
             <ChevronLeft size={20} /> Previous
           </button>
           <div className="player-help"><AlertCircle size={16} /> Need assistance?</div>
-          <button className="btn-text-v2" onClick={() => setCurrentStep(Math.min(mmseQuestions.length - 1, currentStep + 1))}>
+          <button className="btn-text-v2" onClick={() => setCurrentStep(Math.min(questions.length - 1, currentStep + 1))}>
             Skip <ChevronRight size={20} />
           </button>
         </div>

@@ -400,8 +400,15 @@ const SpeechTest = () => {
       : "00:00";
 
   const getRiskColor = (risk) =>
-    ({ Low: "#6FCF97", Moderate: "#F59E0B", High: "#EF4444" })[risk] ||
+    ({ Low: "#10B981", Moderate: "#F59E0B", High: "#EF4444" })[risk] ||
     "#4A90E2";
+
+  const getStabilityColor = (pct) => {
+    const val = parseFloat(pct);
+    if (val >= 70) return "#10B981"; // High stability -> Healthy Green
+    if (val >= 45) return "#F59E0B"; // Moderate stability -> Amber
+    return "#EF4444";               // Low stability -> Red
+  };
 
   return (
     <div className="speech-test-v2 container animate-fade-up">
@@ -717,72 +724,80 @@ const SpeechTest = () => {
         )}
 
         {/* DONE */}
-        {phase === "done" && result && (
-          <div className="results-grid-speech">
-            <div className="results-header-speech">
-              <CheckCircle2 size={40} className="text-secondary" />
-              <h2>Analysis Complete</h2>
-              <p style={{ color: "var(--text-sub)" }}>
-                Vocal biomarker assessment logged to your profile.
-              </p>
+        {phase === "done" && result && (() => {
+          const stability = typeof result.stability_pct === "number" ? result.stability_pct : parseFloat(result.stability_pct) || 85.0;
+          // Strictly enforce: High voice stability (>= 70%) -> Low dementia risk; Low voice stability (< 45%) -> High dementia risk
+          const displayRisk = result.risk_level || (stability >= 70 ? "Low" : stability >= 45 ? "Moderate" : "High");
+          const riskColor = getRiskColor(displayRisk);
+          const stabilityColor = getStabilityColor(stability);
+
+          return (
+            <div className="results-grid-speech">
+              <div className="results-header-speech">
+                <CheckCircle2 size={40} className="text-secondary" />
+                <h2>Analysis Complete</h2>
+                <p style={{ color: "var(--text-sub)" }}>
+                  Vocal biomarker assessment logged to your profile.
+                </p>
+              </div>
+              <div className="biomarker-cards">
+                {[
+                  {
+                    label: "Speech Stability",
+                    value: `${stability}%`,
+                    caption: "Neural coherence index",
+                    color: stabilityColor,
+                  },
+                  {
+                    label: "Temporal Jitter",
+                    value: `${result.jitter_f0}%`,
+                    caption: "F0 perturbation ratio",
+                    color: "#4A90E2",
+                  },
+                  {
+                    label: "Neural Latency",
+                    value: `${result.neural_latency}ms`,
+                    caption: "Vocal processing speed",
+                    color: "#8B5CF6",
+                  },
+                ].map((m, i) => (
+                  <div
+                    key={i}
+                    className="biomarker-card"
+                    style={{ borderTop: `3px solid ${m.color}` }}
+                  >
+                    <p className="bio-label">{m.label}</p>
+                    <span className="bio-value" style={{ color: m.color }}>
+                      {m.value}
+                    </span>
+                    <p className="bio-caption">{m.caption}</p>
+                  </div>
+                ))}
+              </div>
+              <div
+                className="risk-result-speech"
+                style={{
+                  background: `${riskColor}15`,
+                  border: `1px solid ${riskColor}30`,
+                }}
+              >
+                <strong style={{ color: riskColor }}>
+                  Risk Level: {displayRisk}
+                </strong>
+                <p>{result.analysis_notes}</p>
+              </div>
+              <button
+                className="btn-rerecord"
+                onClick={() => {
+                  setPhase("mode-select");
+                  setResult(null);
+                }}
+              >
+                Start Another Analysis
+              </button>
             </div>
-            <div className="biomarker-cards">
-              {[
-                {
-                  label: "Speech Stability",
-                  value: `${result.stability_pct}%`,
-                  caption: "Neural coherence index",
-                  color: getRiskColor(result.risk_level),
-                },
-                {
-                  label: "Temporal Jitter",
-                  value: `${result.jitter_f0}%`,
-                  caption: "F0 perturbation ratio",
-                  color: "#4A90E2",
-                },
-                {
-                  label: "Neural Latency",
-                  value: `${result.neural_latency}ms`,
-                  caption: "Vocal processing speed",
-                  color: "#8B5CF6",
-                },
-              ].map((m, i) => (
-                <div
-                  key={i}
-                  className="biomarker-card"
-                  style={{ borderTop: `3px solid ${m.color}` }}
-                >
-                  <p className="bio-label">{m.label}</p>
-                  <span className="bio-value" style={{ color: m.color }}>
-                    {m.value}
-                  </span>
-                  <p className="bio-caption">{m.caption}</p>
-                </div>
-              ))}
-            </div>
-            <div
-              className="risk-result-speech"
-              style={{
-                background: `${getRiskColor(result.risk_level)}15`,
-                border: `1px solid ${getRiskColor(result.risk_level)}30`,
-              }}
-            >
-              <strong style={{ color: getRiskColor(result.risk_level) }}>
-                Risk Level: {result.risk_level}
-              </strong>
-              <p>{result.analysis_notes}</p>
-            </div>
-            <button
-              className="btn-rerecord"
-              onClick={() => {
-                setPhase("mode-select");
-                setResult(null);
-              }}
-            >
-              Start Another Analysis
-            </button>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       <style jsx>{`

@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, Users, Info, Cpu, TrendingDown,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { mocaQuestions, calculateScore, interpretMOCA } from '../data/questions';
+import { getMoCAQuestions, calculateScore, interpretMOCA } from '../data/questions';
 import { testService } from '../services/api';
 import QuestionCard from '../components/QuestionCard';
 
@@ -184,6 +184,7 @@ const DemographicInsight = ({ adj }) => {
 // ─── MoCATest Component ───────────────────────────────────────────────────────
 const MoCATest = () => {
   const navigate = useNavigate();
+  const [questions]                   = useState(() => getMoCAQuestions());
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers]         = useState({});
   const [isFinished, setIsFinished]   = useState(false);
@@ -193,10 +194,10 @@ const MoCATest = () => {
   const [submitError, setSubmitError] = useState('');
 
   const handleAnswer = (answer) => {
-    const updatedAnswers = { ...answers, [mocaQuestions[currentStep].id]: answer };
+    const updatedAnswers = { ...answers, [questions[currentStep].id]: answer };
     setAnswers(updatedAnswers);
     setTimeout(() => {
-      if (currentStep < mocaQuestions.length - 1) {
+      if (currentStep < questions.length - 1) {
         setCurrentStep(currentStep + 1);
       } else {
         finishTest(updatedAnswers);
@@ -208,13 +209,13 @@ const MoCATest = () => {
     setIsFinished(true);
     setSubmitting(true);
     const duration_secs = Math.round((Date.now() - startTime) / 1000);
-    const safeQuestions = mocaQuestions.map(({ id, section, correctAnswer, score }) => ({ id, section, correctAnswer, score }));
+    const safeQuestions = questions.map(({ id, section, correctAnswer, score }) => ({ id, section, correctAnswer, score }));
 
     try {
       const { data } = await testService.submitMoCA({ answers: finalAnswers, duration_secs, questions: safeQuestions });
       setResult(data.data);
     } catch (err) {
-      const localScore = calculateScore(finalAnswers, mocaQuestions);
+      const localScore = calculateScore(finalAnswers, questions);
       setResult({ score: localScore, max_score: 30, risk_level: interpretMOCA(localScore).level });
       setSubmitError('Result saved locally (backend unavailable).');
     } finally {
@@ -222,8 +223,8 @@ const MoCATest = () => {
     }
   };
 
-  const currentQuestion = mocaQuestions[currentStep];
-  const progress        = ((currentStep + 1) / mocaQuestions.length) * 100;
+  const currentQuestion = questions[currentStep];
+  const progress        = ((currentStep + 1) / questions.length) * 100;
   const interpretation  = result ? interpretMOCA(result.score) : null;
 
   if (isFinished) {
@@ -321,20 +322,20 @@ const MoCATest = () => {
       <div className="player-progress-v2">
         <div className="progress-top">
           <span>{Math.round(progress)}% Processed</span>
-          <span>Item {currentStep + 1}/{mocaQuestions.length}</span>
+          <span>Item {currentStep + 1}/{questions.length}</span>
         </div>
         <div className="progress-track-v2">
           <div className="progress-bar-v2" style={{ width: `${progress}%`, background: 'var(--grad-secondary)' }}></div>
         </div>
       </div>
       <div className="player-body-v2">
-        <QuestionCard {...currentQuestion} onAnswer={handleAnswer} selectedAnswer={answers[currentQuestion.id]} accentColor="#6FCF97" />
+        <QuestionCard key={currentQuestion.id} {...currentQuestion} onAnswer={handleAnswer} selectedAnswer={answers[currentQuestion.id]} accentColor="#6FCF97" />
         <div className="player-nav-v2">
           <button className="btn-text-v2" disabled={currentStep === 0} onClick={() => setCurrentStep(currentStep - 1)}>
             <ChevronLeft size={20} /> Previous
           </button>
           <div className="player-help"><AlertCircle size={16} /> Assistance required?</div>
-          <button className="btn-text-v2" onClick={() => setCurrentStep(Math.min(mocaQuestions.length - 1, currentStep + 1))}>
+          <button className="btn-text-v2" onClick={() => setCurrentStep(Math.min(questions.length - 1, currentStep + 1))}>
             Skip Task <ChevronRight size={20} />
           </button>
         </div>

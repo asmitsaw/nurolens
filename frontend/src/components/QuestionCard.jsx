@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image as ImageIcon, AlertCircle } from 'lucide-react';
 
 const QuestionCard = ({
@@ -12,6 +12,17 @@ const QuestionCard = ({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // Normalize image paths (ensure leading slash for local public assets)
+  const normalizedImage = typeof image === 'string' && !image.startsWith('http') && !image.startsWith('/')
+    ? `/${image}`
+    : image;
+
+  // Reset image loading and error states whenever image or question changes
+  useEffect(() => {
+    setImageLoaded(false);
+    setImageError(false);
+  }, [image, question]);
 
   return (
     <div className="card question-card-modern">
@@ -40,13 +51,14 @@ const QuestionCard = ({
                   </div>
                 ) : (
                   <img
-                    src={image}
+                    key={normalizedImage}
+                    src={normalizedImage}
                     alt="Clinical visual stimuli"
                     className={`clinical-img ${imageLoaded ? 'loaded' : 'hidden'}`}
                     onLoad={() => setImageLoaded(true)}
                     onError={() => {
                       setImageError(true);
-                      console.error("Clinical image failed to load:", image);
+                      console.error("Clinical image failed to load:", normalizedImage);
                     }}
                   />
                 )}
