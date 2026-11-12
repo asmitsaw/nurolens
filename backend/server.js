@@ -1,3 +1,13 @@
+/**
+ * @file server.js
+ * @description Main server entrypoint for the NeuroLens Express backend API.
+ * Orchestrates security middleware, CORS policies, static uploads serving,
+ * and mounts modular route handlers for authentication, cognitive tests,
+ * speech biomarker analysis, MRI deep-learning inference, and clinical portals.
+ *
+ * @module backend/server
+ */
+
 require("dotenv").config();
 
 const express = require("express");
