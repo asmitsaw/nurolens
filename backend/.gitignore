@@ -1,4 +1,18 @@
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
+.env.*
+
+# Uploads & Temp processing directories
 uploads/
+temp/
+
+# Logs
 *.log
+logs/
+
+# Python caches
+__pycache__/
+*.pyc
