@@ -18,8 +18,12 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const res = await login(email, password);
+      if (res?.user?.role === 'doctor') {
+        navigate('/doctor-portal');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
@@ -33,7 +37,7 @@ const Login = () => {
         <div className="auth-header">
           <Link to="/" className="auth-logo">
             <Activity className="text-primary" size={32} />
-            <span>CogniFusion</span>
+            <span>NeuroLens</span>
           </Link>
           <h1>Welcome Back</h1>
           <p>Please enter your details to sign in.</p>

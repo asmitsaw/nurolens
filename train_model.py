@@ -1,5 +1,5 @@
 """
-CogniFusion Demographic-Adjusted Cognitive Score Model
+NeuroLens Demographic-Adjusted Cognitive Score Model
 =====================================================
 Uses the NACC dataset to build two machine learning models:
   1. Dementia Risk Classifier  (XGBoost / Random Forest)

@@ -1,4 +1,4 @@
-# CogniFusion – Full Setup Guide
+# NeuroLens – Full Setup Guide
 
 ## Prerequisites (install these first)
 

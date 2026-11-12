@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
  * Wraps protected routes — redirects to /login if not authenticated.
  * Shows nothing while the auth state is being rehydrated from localStorage.
  */
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -23,13 +23,17 @@ const ProtectedRoute = ({ children }) => {
           animation: 'spin 0.8s linear infinite'
         }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); }}`}</style>
-        <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Loading CogniFusion...</span>
+        <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Loading NeuroLens...</span>
       </div>
     );
   }
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to={user.role === 'doctor' ? '/doctor-portal' : '/dashboard'} replace />;
   }
 
   return children;

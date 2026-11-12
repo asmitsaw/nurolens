@@ -108,12 +108,12 @@ const Signup = () => {
         <div className="auth-header">
           <Link to="/" className="auth-logo">
             <Activity className="text-primary" size={32} />
-            <span>CogniFusion</span>
+            <span>NeuroLens</span>
           </Link>
           <h1>{step === 1 ? 'Create Your Account' : 'Patient Profile'}</h1>
           <p>
             {step === 1
-              ? 'Join CogniFusion for AI-powered cognitive health screening.'
+              ? 'Join NeuroLens for AI-powered cognitive health screening.'
               : 'Help us personalise your cognitive assessment norms.'}
           </p>
         </div>

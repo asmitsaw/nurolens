@@ -106,16 +106,17 @@ const ClockDrawingTest = () => {
     setSubmitting(true);
     try {
       const duration_secs = Math.round((Date.now() - startTime) / 1000);
-      const { data } = await testService.submitMMSE({
-        answers:       { clock_drawing_score: totalScore },
-        duration_secs,
-        test_subtype:  'ClockDrawing',
+      const { data } = await testService.submitClock({
+        answers:       checked,
         manual_score:  totalScore,
-        max_score:     5,
+        duration_secs,
       });
-      setResult({ score: totalScore, label: totalScore >= 4 ? 'Normal' : totalScore >= 3 ? 'Borderline' : 'Impaired' });
-    } catch {
-      setResult({ score: totalScore, label: totalScore >= 4 ? 'Normal' : totalScore >= 3 ? 'Borderline' : 'Impaired' });
+      const label = totalScore >= 4 ? 'Normal' : totalScore === 3 ? 'Borderline' : 'Impaired';
+      setResult({ score: totalScore, label, risk: data?.data?.risk_level, saved: true });
+    } catch (err) {
+      console.error('[Clock Submit Error]', err);
+      const label = totalScore >= 4 ? 'Normal' : totalScore === 3 ? 'Borderline' : 'Impaired';
+      setResult({ score: totalScore, label, saved: false, error: 'Could not sync result with medical server.' });
     } finally {
       setSubmitting(false);
       setPhase('done');
@@ -195,6 +196,15 @@ const ClockDrawingTest = () => {
             {result.label}
           </div>
           <p>{result.label === 'Normal' ? 'Excellent visuospatial and executive function demonstrated.' : result.label === 'Borderline' ? 'Some difficulty noted — a follow-up assessment may be recommended.' : 'Significant difficulty detected — please discuss with a specialist.'}</p>
+          {result.saved ? (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '20px', fontSize: '13px', fontWeight: 600 }}>
+              <CheckCircle2 size={16} /> Saved to Clinical Test Records ({result.risk || result.label} Risk)
+            </div>
+          ) : result.error ? (
+            <div style={{ padding: '8px 16px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: '8px', fontSize: '13px', fontWeight: 500 }}>
+              ⚠️ {result.error}
+            </div>
+          ) : null}
           <div className="done-actions">
             <button className="btn-primary-lg" onClick={() => navigate('/reports')}>View Reports <ArrowRight size={18} /></button>
             <button className="btn-link" onClick={() => navigate('/tests')}>Back to Tests</button>

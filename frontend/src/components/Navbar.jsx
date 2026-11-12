@@ -22,7 +22,7 @@ const Navbar = () => {
     .map((n) => n[0])
     .join('')
     .toUpperCase()
-    .slice(0, 2) || 'CF';
+    .slice(0, 2) || 'NL';
 
   const firstName = user?.full_name?.split(' ')[0] || 'User';
 
@@ -33,7 +33,7 @@ const Navbar = () => {
           {isLandingPage ? (
             <Link to="/" className="brand-v2">
               <Activity className="brand-icon" size={28} strokeWidth={3} />
-              <span>CogniFusion</span>
+              <span>NeuroLens</span>
             </Link>
           ) : (
             <div className="search-pill">
@@ -45,10 +45,9 @@ const Navbar = () => {
 
         {isLandingPage && (
           <div className="nav-center">
-            <Link to="/" className="nav-link-v2 active">Features</Link>
-            <Link to="/" className="nav-link-v2">Research</Link>
-            <Link to="/" className="nav-link-v2">Partners</Link>
-            <Link to="/" className="nav-link-v2">Pricing</Link>
+            <a href="#how-it-works" className="nav-link-v2 active">Features</a>
+            <a href="#how-it-works" className="nav-link-v2">Research</a>
+            <Link to="/consult-doctor" className="nav-link-v2">Specialists</Link>
           </div>
         )}
 
@@ -61,10 +60,10 @@ const Navbar = () => {
           ) : user ? (
             <>
               <button className="icon-btn-v2"><Bell size={20} /></button>
-              <div className="user-badge-v2">
+              <div className="user-badge-v2" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }} title="View Profile">
                 <div className="badge-text">
                   <strong>{firstName}</strong>
-                  <span>Patient</span>
+                  <span style={{ textTransform: 'capitalize' }}>{user?.role === 'doctor' ? 'Specialist' : 'Patient'}</span>
                 </div>
                 <div className="avatar-circle">{initials}</div>
               </div>

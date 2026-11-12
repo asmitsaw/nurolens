@@ -1,8 +1,8 @@
-# CogniFusion Project Report (Non-Technical Deep Dive)
+# NeuroLens Project Report (Non-Technical Deep Dive)
 
 ## 1) What This Project Is
 
-CogniFusion is a digital health platform built to screen for possible early cognitive decline (such as memory and thinking changes linked with dementia risk). It combines:
+NeuroLens is a digital health platform built to screen for possible early cognitive decline (such as memory and thinking changes linked with dementia risk). It combines:
 
 - Standard clinical-style questionnaires (MMSE and MoCA)
 - Voice analysis
@@ -19,7 +19,7 @@ Traditional cognitive screening can be:
 - Dependent on one clinic visit
 - Hard to track over time
 
-CogniFusion aims to make screening:
+NeuroLens aims to make screening:
 
 - More accessible from home
 - Multi-modal (tests + speech + MRI)
@@ -329,7 +329,7 @@ Avoid claiming:
 
 ## 13) Plain-English Conclusion
 
-CogniFusion is already a strong multi-module digital health platform with real functionality across patient and doctor workflows. The cognitive scoring and demographic-adjusted logic are meaningful and grounded. The speech and MRI components show clear promise and good engineering integration, but they should still be treated as evolving AI modules requiring further validation before high-trust clinical decision use.
+NeuroLens is already a strong multi-module digital health platform with real functionality across patient and doctor workflows. The cognitive scoring and demographic-adjusted logic are meaningful and grounded. The speech and MRI components show clear promise and good engineering integration, but they should still be treated as evolving AI modules requiring further validation before high-trust clinical decision use.
 
 In summary:
 

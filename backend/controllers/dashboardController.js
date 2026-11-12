@@ -16,6 +16,7 @@ exports.getDashboardData = async (req, res) => {
       { data: speechResults },
       { data: mriResults },
       { data: upcomingConsultations },
+      { data: pendingPrescriptions },
     ] = await Promise.all([
       supabase
         .from('test_results')
@@ -45,6 +46,13 @@ exports.getDashboardData = async (req, res) => {
         .eq('status', 'upcoming')
         .order('scheduled_at', { ascending: true })
         .limit(1),
+
+      supabase
+        .from('mri_prescriptions')
+        .select('id, doctor_id, notes, status, prescribed_at')
+        .eq('patient_id', userId)
+        .order('prescribed_at', { ascending: false })
+        .limit(3),
     ]);
 
     // --- Derive latest test scores ---
@@ -120,10 +128,12 @@ exports.getDashboardData = async (req, res) => {
           mri: latestMRI,
         },
         recent_activity: recentActivity,
+        trend_data: trendData,
         upcoming_consultation: upcomingConsultations?.[0] ? {
           ...upcomingConsultations[0],
-          meeting_url: (upcomingConsultations[0].meeting_url || '').replace('https://meet.cognifusion.app/session/', 'https://meet.jit.si/NeuroLens-Session-')
+          meeting_url: (upcomingConsultations[0].meeting_url || '').replace(/https:\/\/meet\.neurolens\.app\/session\//, 'https://meet.jit.si/NeuroLens-Session-')
         } : null,
+        pending_prescription: pendingPrescriptions?.find(p => !p.status || p.status === 'prescribed') || null,
         tests_completed: (testResults?.length || 0) + (speechResults?.length || 0) + (mriResults?.length || 0),
       },
     });

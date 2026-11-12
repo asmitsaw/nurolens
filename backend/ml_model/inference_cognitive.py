@@ -1,5 +1,5 @@
 """
-CogniFusion ML Inference Module
+NeuroLens ML Inference Module
 ================================
 Called by Node.js backend via child_process.execFile.
 
@@ -124,7 +124,7 @@ def run_inference(age, sex, education, moca_score, cdr_sum=0.0):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="CogniFusion cognitive risk inference")
+    parser = argparse.ArgumentParser(description="NeuroLens cognitive risk inference")
     parser.add_argument("--age",   type=float, required=True,  help="Patient age in years")
     parser.add_argument("--sex",   type=int,   required=True,  help="Sex: 1=Male, 2=Female")
     parser.add_argument("--educ",  type=float, required=True,  help="Years of education")

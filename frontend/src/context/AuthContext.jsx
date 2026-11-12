@@ -8,7 +8,7 @@ const api = axios.create({ baseURL: '/api' });
 
 // Attach JWT to every request automatically
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('cf_token');
+  const token = localStorage.getItem('nl_token') || localStorage.getItem('cf_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -18,6 +18,8 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
+      localStorage.removeItem('nl_token');
+      localStorage.removeItem('nl_user');
       localStorage.removeItem('cf_token');
       localStorage.removeItem('cf_user');
       window.location.href = '/login';
@@ -33,13 +35,15 @@ export function AuthProvider({ children }) {
 
   // Rehydrate from localStorage on first load
   useEffect(() => {
-    const storedToken = localStorage.getItem('cf_token');
-    const storedUser  = localStorage.getItem('cf_user');
+    const storedToken = localStorage.getItem('nl_token') || localStorage.getItem('cf_token');
+    const storedUser  = localStorage.getItem('nl_user') || localStorage.getItem('cf_user');
     if (storedToken && storedUser) {
       try {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
       } catch (_) {
+        localStorage.removeItem('nl_token');
+        localStorage.removeItem('nl_user');
         localStorage.removeItem('cf_token');
         localStorage.removeItem('cf_user');
       }
@@ -49,8 +53,8 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
-    localStorage.setItem('cf_token', data.token);
-    localStorage.setItem('cf_user', JSON.stringify(data.user));
+    localStorage.setItem('nl_token', data.token);
+    localStorage.setItem('nl_user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     return data;
@@ -58,14 +62,16 @@ export function AuthProvider({ children }) {
 
   const signup = useCallback(async (payload) => {
     const { data } = await api.post('/auth/signup', payload);
-    localStorage.setItem('cf_token', data.token);
-    localStorage.setItem('cf_user', JSON.stringify(data.user));
+    localStorage.setItem('nl_token', data.token);
+    localStorage.setItem('nl_user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     return data;
   }, []);
 
   const logout = useCallback(() => {
+    localStorage.removeItem('nl_token');
+    localStorage.removeItem('nl_user');
     localStorage.removeItem('cf_token');
     localStorage.removeItem('cf_user');
     setToken(null);
@@ -74,11 +80,11 @@ export function AuthProvider({ children }) {
 
   const updateUser = useCallback((updatedUser) => {
     setUser(updatedUser);
-    localStorage.setItem('cf_user', JSON.stringify(updatedUser));
+    localStorage.setItem('nl_user', JSON.stringify(updatedUser));
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, signup, logout, updateUser, api }}>
+    <AuthContext.Provider value={{ user, token, loading, login, signup, logout, updateUser, setUser: updateUser, api }}>
       {children}
     </AuthContext.Provider>
   );

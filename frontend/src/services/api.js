@@ -17,6 +17,8 @@ export const dashboardService = {
 export const testService = {
   submitMMSE:      (payload) => api.post('/tests/mmse', payload),
   submitMoCA:      (payload) => api.post('/tests/moca', payload),
+  submitClock:     (payload) => api.post('/tests/clock', payload),
+  submitTMT:       (payload) => api.post('/tests/tmt', payload),
   getHistory:      (params)  => api.get('/tests/history', { params }),
   getLatestScores: ()        => api.get('/tests/latest-scores'),
 };

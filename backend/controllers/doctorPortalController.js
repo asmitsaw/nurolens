@@ -131,7 +131,14 @@ exports.prescribeMRI = async (req, res) => {
 
     const { data: prescription, error } = await supabase
       .from('mri_prescriptions')
-      .insert({ doctor_id: req.user.id, patient_id, notes: notes || null, report_id: report_id || null })
+      .insert({
+        doctor_id: req.user.id,
+        patient_id,
+        notes: notes || null,
+        report_id: report_id || null,
+        status: 'prescribed',
+        prescribed_at: new Date().toISOString()
+      })
       .select()
       .single();
 

@@ -92,11 +92,15 @@ exports.getClinicalSummary = async (req, res) => {
       ? clinicalScores.reduce((a, b) => a + b, 0) / clinicalScores.length
       : null;
 
-    // Speech component
-    const speechComponent = latestSpeech ? (riskScore[latestSpeech.risk_level] || 1) : null;
+    // Speech component (only if valid risk classified)
+    const speechComponent = latestSpeech && ['Low', 'Moderate', 'High'].includes(latestSpeech.risk_level)
+      ? riskScore[latestSpeech.risk_level]
+      : null;
 
-    // MRI component
-    const mriComponent = latestMRI ? (riskScore[latestMRI.risk_level] || 1) : null;
+    // MRI component (only if valid risk classified)
+    const mriComponent = latestMRI && ['Low', 'Moderate', 'High'].includes(latestMRI.risk_level)
+      ? riskScore[latestMRI.risk_level]
+      : null;
 
     // Build weighted average only from available modalities
     let weightedSum    = 0;

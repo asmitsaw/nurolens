@@ -62,8 +62,8 @@ function App() {
               <Route path="/consult-doctor" element={<ProtectedRoute><ConsultDoctor /></ProtectedRoute>} />
               <Route path="/profile"        element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
 
-              {/* Doctor portal (JWT + role=doctor enforced on backend) */}
-              <Route path="/doctor-portal"  element={<ProtectedRoute><DoctorPortal /></ProtectedRoute>} />
+              {/* Doctor portal (role=doctor enforced on frontend and backend) */}
+              <Route path="/doctor-portal"  element={<ProtectedRoute allowedRoles={['doctor']}><DoctorPortal /></ProtectedRoute>} />
             </Routes>
           </Layout>
         </div>

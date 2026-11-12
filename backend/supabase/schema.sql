@@ -1,5 +1,5 @@
 -- ============================================================
--- CogniFusion - Supabase PostgreSQL Schema
+-- NeuroLens - Supabase PostgreSQL Schema
 -- Run this in your Supabase SQL Editor to set up all tables
 -- ============================================================
 

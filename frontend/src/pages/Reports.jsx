@@ -10,7 +10,7 @@ const generatePDF = (report, user) => {
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>CogniFusion Clinical Report — ${report.report_id}</title>
+      <title>NeuroLens Clinical Report — ${report.report_id}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; padding: 48px; color: #1e293b; }
@@ -36,7 +36,7 @@ const generatePDF = (report, user) => {
     </head>
     <body>
       <div class="header">
-        <div class="brand">CogniFusion<small>AI-Assisted Cognitive Health Assessment</small></div>
+        <div class="brand">NeuroLens<small>AI-Assisted Cognitive Health Assessment</small></div>
         <div class="report-id"><strong>${report.report_id}</strong>Generated: ${new Date(report.created_at).toLocaleString()}</div>
       </div>
 
@@ -63,7 +63,7 @@ const generatePDF = (report, user) => {
       </div>
 
       <div class="footer">
-        <span>CogniFusion Clinical Report · Confidential Medical Document</span>
+        <span>NeuroLens Clinical Report · Confidential Medical Document</span>
         <span>For screening purposes only. Not a definitive clinical diagnosis.</span>
       </div>
     </body>

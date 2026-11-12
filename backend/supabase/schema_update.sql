@@ -1,5 +1,5 @@
 -- ============================================================
--- CogniFusion - Schema Update: Patient Demographics
+-- NeuroLens - Schema Update: Patient Demographics
 -- Run this in Supabase SQL Editor to add demographic fields
 -- ============================================================
 

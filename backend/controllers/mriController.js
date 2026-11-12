@@ -88,14 +88,17 @@ exports.uploadMRI = async (req, res) => {
           ai_insights = `Diagnosis: ${aiResult.clinical_diagnosis || 'N/A'} | Confidence: ${(aiResult.confidence * 100).toFixed(1)}% | Estimated Atrophy: ${atrophy_pct}%`;
         } else {
            console.error('[AI Model Failure]', aiResult);
-           // Fallback to basic metrics if AI fails
-           hippocampal_vol = parseFloat((3000 + Math.random() * 1200).toFixed(1));
-           atrophy_pct = parseFloat((Math.random() * 20).toFixed(1));
-           risk_level = atrophy_pct > 15 ? 'High' : (atrophy_pct > 10 ? 'Moderate' : 'Low');
-           ai_insights = 'Fallback mock data generated due to AI failure.';
+           hippocampal_vol = 0;
+           atrophy_pct = 0;
+           risk_level = 'Unknown';
+           ai_insights = `Automated volumetric analysis unavailable: ${aiResult?.error || 'Scan could not be processed by AI model.'}`;
         }
       } catch (err) {
         console.error('[Temp File/AI Error]', err);
+        hippocampal_vol = 0;
+        atrophy_pct = 0;
+        risk_level = 'Unknown';
+        ai_insights = 'Automated volumetric analysis unavailable due to processing error.';
       }
 
       // --- Determine format ---
@@ -109,7 +112,10 @@ exports.uploadMRI = async (req, res) => {
       };
 
       // --- Save MRI record to DB ---
-      const finalRiskLevel = ['Low', 'Moderate', 'High'].includes(risk_level) ? risk_level : 'Moderate';
+      const isAnalyzed = ['Low', 'Moderate', 'High'].includes(risk_level);
+      const scanStatus = isAnalyzed ? 'verified' : 'unprocessed';
+      const finalRiskLevel = isAnalyzed ? risk_level : 'Unknown';
+
       const { data: scanRecord, error: dbError } = await supabase
         .from('mri_scans')
         .insert({
@@ -118,7 +124,7 @@ exports.uploadMRI = async (req, res) => {
           file_url,
           file_size_bytes: file.size,
           file_format: formatMap[ext] || 'Unknown',
-          status: 'verified',
+          status: scanStatus,
           hippocampal_vol,
           atrophy_pct,
           risk_level: finalRiskLevel,
@@ -135,15 +141,27 @@ exports.uploadMRI = async (req, res) => {
       }
 
       // Auto-generate report
-      await supabase.from('reports').insert({
-        user_id: userId,
-        report_id: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
-        title: 'Hippocampal Volumetric Report',
-        report_type: 'MRI Insight',
-        mri_scan_id: scanRecord.id,
-        risk_level: finalRiskLevel,
-        summary: `MRI scan analyzed. Risk: ${finalRiskLevel}. ${ai_insights}`,
-      });
+      if (isAnalyzed) {
+        await supabase.from('reports').insert({
+          user_id: userId,
+          report_id: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
+          title: 'Hippocampal Volumetric Report',
+          report_type: 'MRI Insight',
+          mri_scan_id: scanRecord.id,
+          risk_level: finalRiskLevel,
+          summary: `MRI scan analyzed. Risk: ${finalRiskLevel}. ${ai_insights}`,
+        });
+      } else {
+        await supabase.from('reports').insert({
+          user_id: userId,
+          report_id: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
+          title: 'MRI Scan Upload Notice',
+          report_type: 'MRI Insight',
+          mri_scan_id: scanRecord.id,
+          risk_level: 'Unknown',
+          summary: `MRI scan uploaded (${file.originalname}). Automated neural network analysis could not extract volumetric parameters. Specialist review required.`,
+        });
+      }
 
       uploadedScans.push({
         file_name: file.originalname,

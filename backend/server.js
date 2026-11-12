@@ -93,7 +93,7 @@ app.use("/api/auth/signup", authLimiter);
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "✅ CogniFusion API is running.",
+    message: "✅ NeuroLens API is running.",
     environment: process.env.NODE_ENV,
     timestamp: new Date().toISOString(),
   });
@@ -140,7 +140,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`
   ╔════════════════════════════════════════╗
-  ║    CogniFusion Backend API v1.0        ║
+  ║     NeuroLens Backend API v1.0         ║
   ╠════════════════════════════════════════╣
   ║  🚀 Running on  : http://localhost:${PORT}  ║
   ║  🌍 Environment : ${process.env.NODE_ENV?.padEnd(16)}  ║

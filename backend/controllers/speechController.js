@@ -90,9 +90,9 @@ exports.uploadSpeech = async (req, res) => {
     } catch (mlErr) {
       console.error("[ML Inference Error]", mlErr);
       mlResult = {
-        stability_pct: 75.0,
-        risk_level: "Moderate",
-        analysis_notes: "ML model inference failed. Using baseline assessment.",
+        stability_pct: null,
+        risk_level: "Unknown",
+        analysis_notes: "Acoustic ML model inference unavailable for this audio sample.",
       };
     } finally {
       // Clean up temp WAV
@@ -105,26 +105,30 @@ exports.uploadSpeech = async (req, res) => {
     const audio_url = `/uploads/${fileName}`;
 
     // Use ML results
-    const stability_pct = typeof mlResult.stability_pct === "number" ? mlResult.stability_pct : 85.0;
-    const jitter_f0 = parseFloat((0.1 + Math.random() * 0.2).toFixed(2));
-    const neural_latency = parseFloat((10 + Math.random() * 10).toFixed(1));
+    const hasML = typeof mlResult.stability_pct === "number";
+    const stability_pct = hasML ? mlResult.stability_pct : null;
+    const jitter_f0 = hasML ? (typeof mlResult.jitter_f0 === 'number' ? mlResult.jitter_f0 : 0.15) : null;
+    const neural_latency = hasML ? (typeof mlResult.neural_latency === 'number' ? mlResult.neural_latency : 12.0) : null;
 
     // Strictly enforce: Voice stability high -> Dementia risk Low; Voice stability low -> Dementia risk High
-    let risk_level = mlResult.risk_level || "Low";
-    if (stability_pct >= 70.0) {
-      risk_level = "Low";
-    } else if (stability_pct >= 45.0) {
-      risk_level = "Moderate";
-    } else {
-      risk_level = "High";
+    let risk_level = mlResult.risk_level || "Unknown";
+    if (hasML) {
+      if (stability_pct >= 70.0) {
+        risk_level = "Low";
+      } else if (stability_pct >= 45.0) {
+        risk_level = "Moderate";
+      } else {
+        risk_level = "High";
+      }
     }
 
-    const analysis_notes =
-      risk_level === "High"
-        ? "Acoustic biomarkers indicate reduced vocal stability consistent with cognitive decline."
-        : risk_level === "Moderate"
-        ? "Acoustic biomarkers indicate mild vocal variability requiring periodic monitoring."
-        : "Vocal biomarkers demonstrate high speech stability within normal range for typical cognitive function.";
+    const analysis_notes = !hasML
+      ? "Acoustic ML model inference unavailable. Audio recorded and stored for specialist review."
+      : risk_level === "High"
+      ? "Acoustic biomarkers indicate reduced vocal stability consistent with cognitive decline."
+      : risk_level === "Moderate"
+      ? "Acoustic biomarkers indicate mild vocal variability requiring periodic monitoring."
+      : "Vocal biomarkers demonstrate high speech stability within normal range for typical cognitive function.";
 
     // --- Save analysis to DB ---
     const { data: speechResult, error: dbError } = await supabase
@@ -157,7 +161,9 @@ exports.uploadSpeech = async (req, res) => {
       report_type: "Speech Analysis",
       speech_id: speechResult.id,
       risk_level,
-      summary: `Speech stability: ${stability_pct}%. Jitter: ${jitter_f0}%. Risk: ${risk_level}.`,
+      summary: hasML
+        ? `Speech stability: ${stability_pct}%. Jitter: ${jitter_f0}%. Risk: ${risk_level}.`
+        : 'Speech sample saved. Automated acoustic analysis was unavailable.',
     });
 
     res.status(201).json({

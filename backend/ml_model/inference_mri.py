@@ -12,6 +12,7 @@ try:
     import torch.nn as nn
     from torchvision import models, transforms
     from PIL import Image
+    import numpy as np
 except ImportError as e:
     print(json.dumps({"error": f"Missing dependency: {str(e)}", "risk_level": "Unknown"}))
     sys.exit(1)
@@ -62,12 +63,11 @@ def get_model():
     model = model.to(DEVICE)
     model.eval()
     return model, None
-    model = models.densenet121(pretrained=False)
     
 
 
 def pre_process_image(image_path):
-    """Preprocess the image for DenseNet"""
+    """Preprocess the image for DenseNet, supporting standard formats, DICOM (.dcm), and NIfTI (.nii/.nii.gz)"""
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
@@ -75,12 +75,31 @@ def pre_process_image(image_path):
     ])
     
     try:
-        # Convert to RGB as DenseNet expects 3 channels
-        image = Image.open(image_path).convert('RGB')
+        lower_path = str(image_path).lower()
+        if lower_path.endswith('.dcm'):
+            import pydicom
+            dcm = pydicom.dcmread(image_path)
+            arr = dcm.pixel_array.astype(np.float32)
+            arr = (arr - arr.min()) / (arr.max() - arr.min() + 1e-8) * 255.0
+            image = Image.fromarray(arr.astype(np.uint8)).convert('RGB')
+        elif lower_path.endswith('.nii') or lower_path.endswith('.nii.gz'):
+            import nibabel as nib
+            nii = nib.load(image_path)
+            data = nii.get_fdata()
+            if data.ndim >= 3:
+                mid_slice = data[:, :, data.shape[2] // 2]
+            else:
+                mid_slice = data
+            arr = mid_slice.astype(np.float32)
+            arr = (arr - arr.min()) / (arr.max() - arr.min() + 1e-8) * 255.0
+            image = Image.fromarray(arr.astype(np.uint8)).convert('RGB')
+        else:
+            image = Image.open(image_path).convert('RGB')
+
         image = transform(image).unsqueeze(0)  # Add batch dimension
         return image, None
     except Exception as e:
-         return None, str(e)
+        return None, str(e)
 
 def run_inference(image_path):
     
@@ -155,7 +174,7 @@ def run_inference(image_path):
         }
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="CogniFusion MRI DenseNet inference")
+    parser = argparse.ArgumentParser(description="NeuroLens MRI DenseNet inference")
     parser.add_argument("--image", type=str, required=True, help="Path to the MRI image (PNG/JPG)")
     args = parser.parse_args()
 

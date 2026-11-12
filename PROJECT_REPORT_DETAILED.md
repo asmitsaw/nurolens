@@ -1,4 +1,4 @@
-# CogniFusion Detailed Project Report
+# NeuroLens Detailed Project Report
 
 Date: 2026-04-20
 
@@ -6,7 +6,7 @@ This report is based on static inspection of the source code, database schema fi
 
 ## 1. Executive Summary
 
-CogniFusion is a multi-modal cognitive health screening platform. It combines:
+NeuroLens is a multi-modal cognitive health screening platform. It combines:
 
 - A React/Vite patient and doctor interface
 - An Express backend with Supabase-backed persistence
@@ -584,4 +584,4 @@ Backend runtime stack:
 
 ## 16. Final Assessment
 
-CogniFusion is a credible end-to-end screening platform with real product depth. Its architecture is coherent, its clinical data model is sensible, and the tabular cognitive model is the most evidence-backed component in the repository. The speech and MRI pieces are integrated well enough to support a multimodal experience, but they still need validation hardening and consistency cleanup before the system should be positioned as clinically robust.
+NeuroLens is a credible end-to-end screening platform with real product depth. Its architecture is coherent, its clinical data model is sensible, and the tabular cognitive model is the most evidence-backed component in the repository. The speech and MRI pieces are integrated well enough to support a multimodal experience, but they still need validation hardening and consistency cleanup before the system should be positioned as clinically robust.

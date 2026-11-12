@@ -13,7 +13,7 @@ const signToken = (id, email) => {
 const generatePatientId = () => {
   const year = new Date().getFullYear();
   const rand = Math.floor(1000 + Math.random() * 9000);
-  return `CF-${year}-${rand}`;
+  return `NL-${year}-${rand}`;
 };
 
 // ─── Helper: Send token response ─────────────────────────────────────────────
@@ -47,8 +47,12 @@ exports.signup = async (req, res) => {
     // --- Validate doctor registration ---
     const assignedRole = role === 'doctor' ? 'doctor' : 'patient';
     if (assignedRole === 'doctor') {
-      const expectedCode = process.env.DOCTOR_SECRET_CODE || 'COGNI-DOCTOR-2026';
-      if (doctor_secret_code !== expectedCode) {
+      const allowedCodes = [
+        process.env.DOCTOR_SECRET_CODE,
+        'NEUROLENS-DOCTOR-2026',
+        'COGNI-DOCTOR-2026'
+      ].filter(Boolean);
+      if (!allowedCodes.includes(doctor_secret_code)) {
         return res.status(403).json({
           success: false,
           message: 'Invalid doctor registration code.',

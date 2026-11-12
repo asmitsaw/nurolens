@@ -140,8 +140,8 @@ exports.getConsultations = async (req, res) => {
     // Sanitize any legacy fictional URLs into active Jitsi rooms
     const sanitized = (consultations || []).map((c) => {
       let mUrl = c.meeting_url;
-      if (mUrl && mUrl.includes('meet.cognifusion.app')) {
-        mUrl = mUrl.replace('https://meet.cognifusion.app/session/', 'https://meet.jit.si/NeuroLens-Session-');
+      if (mUrl && mUrl.includes('meet.neurolens.app')) {
+        mUrl = mUrl.replace(/https:\/\/meet\.neurolens\.app\/session\//, 'https://meet.jit.si/NeuroLens-Session-');
       }
       return { ...c, meeting_url: mUrl };
     });

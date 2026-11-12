@@ -1,5 +1,5 @@
 /**
- * CogniFusion — Demographic Norm‐Adjusted Scoring Engine
+ * NeuroLens — Demographic Norm‐Adjusted Scoring Engine
  *
  * Implements education- and age-based corrections for MMSE and MoCA scores,
  * based on published normative data studies:

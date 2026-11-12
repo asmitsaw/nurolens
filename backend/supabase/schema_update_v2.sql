@@ -1,5 +1,5 @@
 -- ============================================================
--- CogniFusion Schema Update v2
+-- NeuroLens Schema Update v2
 -- Add: role to users, mri_prescriptions table, doctor_notes
 -- Run in Supabase SQL Editor
 -- ============================================================

@@ -7,7 +7,6 @@ import { authService } from '../services/api';
 const EDUCATION_OPTIONS = [
   { value: 'No Formal Education',  label: 'No Formal Education',  years: '0 yrs' },
   { value: 'Primary School',       label: 'Primary School',       years: '6 yrs' },
-  { value: 'Middle School',        label: 'Middle School',        years: '8 yrs' },
   { value: 'High School',          label: 'High School',          years: '12 yrs' },
   { value: 'Some College',         label: 'Some College',         years: '14 yrs' },
   { value: 'Bachelors Degree',     label: "Bachelor's Degree",    years: '16 yrs' },
@@ -22,7 +21,7 @@ const GENDER_OPTIONS = [
 ];
 
 const ProfileEdit = () => {
-  const { user, setUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -44,7 +43,7 @@ const ProfileEdit = () => {
     setSuccess(false);
     try {
       const { data } = await authService.updateProfile(form);
-      if (setUser) setUser(data.user);
+      if (updateUser) updateUser(data.user);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {

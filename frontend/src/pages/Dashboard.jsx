@@ -81,6 +81,51 @@ const Dashboard = () => {
             </div>
           </section>
 
+          {/* Prescribed MRI Alert Banner */}
+          {data?.pending_prescription && (
+            <div className="card-modern prescription-alert" style={{
+              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12))',
+              border: '1px solid rgba(99, 102, 241, 0.35)',
+              padding: '16px 20px',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '24px',
+              gap: '16px',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  background: 'var(--primary)',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Upload size={20} />
+                </div>
+                <div>
+                  <h4 style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: 600 }}>Doctor Prescribed MRI Assessment</h4>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>
+                    {data.pending_prescription.notes || 'Your specialist has requested an MRI brain scan analysis to check volumetric biomarkers.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                className="btn-primary"
+                style={{ padding: '8px 18px', fontSize: '13px', whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer' }}
+                onClick={() => navigate('/mri-upload')}
+              >
+                Upload MRI Scan →
+              </button>
+            </div>
+          )}
+
           {/* Assessment Grid */}
           <section className="assessments-section">
             <div className="section-header-compact">
@@ -109,14 +154,30 @@ const Dashboard = () => {
                 <h3>Cognitive Stability Trend</h3>
               </div>
               <div className="mock-graph">
-                <div className="graph-bars">
-                  {(trendData.length > 0 ? trendData : [40,60,55,75,80,78,85].map((v,i) => ({ percent: v, label: `M${i+1}` }))).map((d, i) => (
-                    <div key={i} className="bar-col">
-                      <div className="bar-fill" style={{ height: `${d.percent || d}%`, animationDelay: `${i * 0.1}s` }}></div>
-                      <span className="bar-label">{d.label || `M${i+1}`}</span>
-                    </div>
-                  ))}
-                </div>
+                {trendData.length > 0 ? (
+                  <div className="graph-bars">
+                    {trendData.map((d, i) => (
+                      <div key={i} className="bar-col">
+                        <div className="bar-fill" style={{ height: `${d.percent}%`, animationDelay: `${i * 0.1}s` }}></div>
+                        <span className="bar-label">{d.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '32px 16px',
+                    color: 'var(--text-muted)',
+                    textAlign: 'center',
+                    gap: '8px'
+                  }}>
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 500 }}>No assessment scores recorded yet.</p>
+                    <small>Complete your first clinical test to build your longitudinal stability trend.</small>
+                  </div>
+                )}
               </div>
             </div>
           </section>

@@ -23,8 +23,7 @@ const Sidebar = () => {
   ];
 
   const doctorMenuItems = [
-    { name: 'Patient Portal', path: '/doctor-portal', icon: <Stethoscope size={20} /> },
-    { name: 'Reports',        path: '/reports',       icon: <FileText size={20} /> },
+    { name: 'Doctor Portal', path: '/doctor-portal', icon: <Stethoscope size={20} /> },
   ];
 
   const menuItems = isDoctor ? doctorMenuItems : patientMenuItems;
@@ -32,14 +31,14 @@ const Sidebar = () => {
   const handleLogout = () => { logout(); navigate('/'); };
 
   const initials = user?.full_name
-    ?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'CF';
+    ?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'NL';
 
   return (
     <aside className="sidebar-enhanced">
       <div className="sidebar-brand">
         <div className="brand-icon-sq"><Activity size={24} strokeWidth={3} /></div>
         <div className="brand-text">
-          <strong>CogniFusion</strong>
+          <strong>NeuroLens</strong>
           <span>{isDoctor ? 'Doctor Portal' : 'Clinical Hub'}</span>
         </div>
       </div>

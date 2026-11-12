@@ -1,7 +1,7 @@
 {
-  "name": "cognifusion-backend",
+  "name": "neurolens-backend",
   "version": "1.0.0",
-  "description": "Backend API for CogniFusion - AI-powered cognitive health platform",
+  "description": "Backend API for NeuroLens - AI-powered cognitive health platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

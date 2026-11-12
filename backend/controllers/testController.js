@@ -71,6 +71,10 @@ const fetchUserDemographics = async (userId) => {
 // ─────────────────────────────────────────────────────────────────────────────
 exports.submitMMSE = async (req, res) => {
   try {
+    if (req.body?.test_subtype === 'ClockDrawing' || req.body?.manual_score !== undefined) {
+      return exports.submitClock(req, res);
+    }
+
     const { answers, duration_secs, questions } = req.body;
 
     if (!answers || !questions) {
@@ -409,3 +413,147 @@ exports.getLatestScores = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// @route   POST /api/tests/clock
+// @desc    Submit Clock Drawing Test result
+// @access  Protected
+// ─────────────────────────────────────────────────────────────────────────────
+exports.submitClock = async (req, res) => {
+  try {
+    const { manual_score, duration_secs, answers } = req.body;
+    const score = Number(manual_score != null ? manual_score : (answers?.clock_drawing_score ?? 0));
+    const MAX_SCORE = 5;
+
+    let risk_level = 'Low';
+    if (score <= 2) risk_level = 'High';
+    else if (score === 3) risk_level = 'Moderate';
+
+    const { data: result, error } = await supabase
+      .from('test_results')
+      .insert({
+        user_id: req.user.id,
+        test_type: 'Clock Drawing',
+        score,
+        max_score: MAX_SCORE,
+        risk_level,
+        section_scores: answers || { score },
+        duration_secs: duration_secs || null,
+        completed_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[Clock Submit DB Error]', error);
+      return res.status(500).json({ success: false, message: 'Failed to save test result.' });
+    }
+
+    const reportSummary = `Clock Drawing Test score: ${score}/${MAX_SCORE} (${risk_level} Risk). Visuospatial and executive function evaluation.`;
+
+    await supabase.from('reports').insert({
+      user_id: req.user.id,
+      report_id: genReportId(),
+      title: 'Clock Drawing Assessment Summary',
+      report_type: 'Clinical Test',
+      test_result_id: result.id,
+      risk_level,
+      summary: reportSummary,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        score,
+        max_score: MAX_SCORE,
+        risk_level,
+        result_id: result.id,
+      },
+    });
+  } catch (err) {
+    console.error('[Clock Submit Error]', err);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// @route   POST /api/tests/tmt
+// @desc    Submit Trail Making Test (Part A) results
+// @access  Protected
+// ─────────────────────────────────────────────────────────────────────────────
+exports.submitTMT = async (req, res) => {
+  try {
+    const { duration_secs = 0, errors = 0, total_dots = 12 } = req.body;
+    const elapsed = Number(duration_secs);
+    const errCount = Number(errors);
+
+    let risk_level = 'Low';
+    let classification = 'Normal';
+    if (elapsed < 30 && errCount === 0) {
+      classification = 'Excellent';
+      risk_level = 'Low';
+    } else if (elapsed < 60 && errCount <= 1) {
+      classification = 'Normal';
+      risk_level = 'Low';
+    } else if (elapsed < 90 && errCount <= 3) {
+      classification = 'Borderline';
+      risk_level = 'Moderate';
+    } else {
+      classification = 'Impaired';
+      risk_level = 'High';
+    }
+
+    // Normalized cognitive sequencing score out of 100
+    const score = Math.max(10, Math.min(100, Math.round(100 - (elapsed * 0.6 + errCount * 6))));
+    const MAX_SCORE = 100;
+
+    const { data: result, error } = await supabase
+      .from('test_results')
+      .insert({
+        user_id: req.user.id,
+        test_type: 'Trail Making (TMT-A)',
+        score,
+        max_score: MAX_SCORE,
+        risk_level,
+        section_scores: { duration_secs: elapsed, errors: errCount, total_dots, classification },
+        duration_secs: elapsed,
+        completed_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[TMT Submit DB Error]', error);
+      return res.status(500).json({ success: false, message: 'Failed to save test result.' });
+    }
+
+    const reportSummary = `Trail Making Test (Part A) completed in ${elapsed}s with ${errCount} errors (${classification}, ${risk_level} Risk). Psychomotor speed and sequencing evaluation.`;
+
+    await supabase.from('reports').insert({
+      user_id: req.user.id,
+      report_id: genReportId(),
+      title: 'Trail Making Test (TMT-A) Summary',
+      report_type: 'Clinical Test',
+      test_result_id: result.id,
+      risk_level,
+      summary: reportSummary,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        score,
+        max_score: MAX_SCORE,
+        risk_level,
+        classification,
+        duration_secs: elapsed,
+        errors: errCount,
+        result_id: result.id,
+      },
+    });
+  } catch (err) {
+    console.error('[TMT Submit Error]', err);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+

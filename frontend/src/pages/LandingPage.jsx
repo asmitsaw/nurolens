@@ -26,16 +26,16 @@ const LandingPage = () => {
             </div>
             <h1>Precision Digital Diagnostics for <span className="text-gradient">Brain Health</span></h1>
             <p>
-              CogniFusion helps detect early signs of Alzheimer's and Dementia using
+              NeuroLens helps detect early signs of Alzheimer's and Dementia using
               clinically-validated cognitive tests, speech pattern analysis, and MRI AI insights.
             </p>
             <div className="hero-actions-modern">
               <Link to="/signup" className="btn-primary-lg">
                 Start Cognitive Assessment <ArrowRight size={20} />
               </Link>
-              <Link to="/how-it-works" className="btn-outline-lg">
+              <a href="#how-it-works" className="btn-outline-lg">
                 <Play size={18} fill="currentColor" /> Learn How It Works
-              </Link>
+              </a>
             </div>
             <div className="hero-trust">
               <ShieldCheck size={18} />
@@ -70,7 +70,7 @@ const LandingPage = () => {
       </section>
 
       {/* Feature Section */}
-      <section className="features-modern container">
+      <section className="features-modern container" id="how-it-works">
         <div className="section-header-center">
           <span className="subtitle">Diagnostic Suite</span>
           <h2>Multimodal Health Analysis</h2>

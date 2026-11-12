@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ArrowRight, RotateCcw, ArrowUpRight } from 'lucide-react';
+import { testService } from '../services/api';
 
 // Trail Making Test Part A — connect numbers 1→25 in order
 const TOTAL_DOTS   = 15;
@@ -40,6 +41,7 @@ const TrailMakingTest = () => {
   const [startTime, setStartTime] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [lastLine, setLastLine] = useState(null);   // { from, to }
+  const [savedResult, setSavedResult] = useState(null);
 
   const timerRef = useRef(null);
 
@@ -135,6 +137,13 @@ const TrailMakingTest = () => {
       if (newStep >= TOTAL_DOTS) {
         clearInterval(timerRef.current);
         setPhase('done');
+        testService.submitTMT({
+          duration_secs: elapsed,
+          errors: errors,
+          total_dots: TOTAL_DOTS,
+        })
+          .then((res) => setSavedResult(res.data?.data))
+          .catch((err) => console.warn('[TMT submit error]', err));
       }
     } else {
       // Wrong dot — check if they clicked any wrong dot
@@ -225,6 +234,22 @@ const TrailMakingTest = () => {
               ? 'Good processing speed and concentration demonstrated.'
               : 'Slower processing speed noted — further evaluation may be recommended.'}
           </p>
+          {savedResult && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 14px',
+              background: 'rgba(16, 185, 129, 0.1)',
+              color: '#10b981',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 600,
+              margin: '4px 0 12px'
+            }}>
+              <CheckCircle2 size={16} /> Saved to Clinical Test Records ({savedResult.risk_level} Risk)
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 12, flexDirection: 'column', width: '100%' }}>
             <button className="btn-reports" onClick={() => navigate('/reports')}>View Reports <ArrowRight size={18} /></button>
             <button className="btn-retry" onClick={() => { setStep(0); setErrors(0); setElapsed(0); setPhase('test'); }}>Retry Test</button>

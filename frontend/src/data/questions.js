@@ -69,7 +69,7 @@ export function getDynamicOrientationData(date = new Date()) {
     // 6. Identity Name
     let userName = "Dhruv Gharat";
     try {
-        const storedUser = typeof localStorage !== 'undefined' ? localStorage.getItem('cf_user') : null;
+        const storedUser = typeof localStorage !== 'undefined' ? (localStorage.getItem('nl_user') || localStorage.getItem('cf_user')) : null;
         if (storedUser) {
             const parsed = JSON.parse(storedUser);
             if (parsed?.full_name?.trim()) {
