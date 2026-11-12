@@ -1,11 +1,13 @@
 # NeuroLens – Full Setup Guide
 
+Multi-modal cognitive health screening platform combining cognitive assessments (MMSE & MoCA), deep-learning MRI analysis, and speech biomarker inference.
+
 ## Prerequisites (install these first)
 
 | Tool    | Version      | Download            |
 | ------- | ------------ | ------------------- |
 | Node.js | 18 +         | https://nodejs.org  |
-| Python  | 3.10 – 3.13 | https://python.org  |
+| Python  | 3.10 – 3.13  | https://python.org  |
 | Git     | any          | https://git-scm.com |
 
 ---
@@ -13,8 +15,8 @@
 ## 1 – Clone the repo
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/asmitsaw/nurolens.git
+cd nurolens
 ```
 
 ---
@@ -110,7 +112,7 @@ Open your browser at **http://localhost:5173**.
 ## Folder structure (quick reference)
 
 ```
-Encode/
+NeuroLens/
 ├── backend/
 │   ├── .env              ← you create this (not in Git)
 │   ├── server.js
@@ -133,8 +135,8 @@ Encode/
 
 | Problem                           | Fix                                                                                           |
 | --------------------------------- | --------------------------------------------------------------------------------------------- |
-| `Cannot find module` on backend | Run`npm install` inside `backend/`                                                        |
-| `SUPABASE_URL not set` error    | Check your`backend/.env` file exists                                                        |
-| Speech test returns error         | Make sure`scaler.pkl`, `pca.pkl`, `dementia_model.pkl` are in `backend/Speech_model/` |
-| Python packages missing           | Run`pip install -r backend/Speech_model/requirements.txt`                                   |
-| Port 5000 already in use          | Change`PORT=5001` in `.env`                                                               |
+| `Cannot find module` on backend   | Run `npm install` inside `backend/`                                                           |
+| `SUPABASE_URL not set` error      | Check your `backend/.env` file exists                                                         |
+| Speech test returns error         | Make sure `scaler.pkl`, `pca.pkl`, `dementia_model.pkl` are in `backend/Speech_model/`        |
+| Python packages missing           | Run `pip install -r backend/Speech_model/requirements.txt`                                    |
+| Port 5000 already in use          | Change `PORT=5001` in `.env`                                                                  |
