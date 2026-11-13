@@ -49,3 +49,4 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Basic user authentication flow (signup, login, JWT issuance)
 - Placeholder routes for cognitive tests, speech upload, and MRI upload
 - First Supabase schema with users and cognitive_tests tables
+

@@ -91,3 +91,4 @@ Expected: JSON with `prediction`, `probability`, `stability_pct`, and `risk_leve
 | `500` on speech upload | Missing `.pkl` model files | Copy `scaler.pkl`, `pca.pkl`, `dementia_model.pkl` to `backend/Speech_model/` |
 | `ModuleNotFoundError` in Python scripts | Missing pip packages | Run `pip install -r requirements.txt` |
 | MRI inference returns `ModerateDemented` on normal image | Model not fine-tuned on this scan | Expected — test with `test_mri.jpg` in repo root for a valid check |
+

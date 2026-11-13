@@ -63,3 +63,4 @@ Yes. When `SUPABASE_URL` is not set, the backend falls back to `backend/data/loc
 3. Register the route in `frontend/src/App.jsx`.
 4. Add the corresponding backend route in `backend/routes/testRoutes.js` and a handler in `backend/controllers/testController.js`.
 5. Update the Supabase schema if a new table or column is required.
+

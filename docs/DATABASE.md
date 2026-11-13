@@ -98,3 +98,4 @@ Stores signed clinical observations by doctors.
 ## Development Fallback
 
 When `SUPABASE_URL` is not set in `backend/.env`, the backend automatically falls back to `backend/data/local_db.json` for read and write operations. This allows local development without requiring a live Supabase project.
+
